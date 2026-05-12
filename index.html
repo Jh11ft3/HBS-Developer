@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBS Developer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f1f2f6 100%);
+            display: flex;
+            min-height: 100vh;
+            animation: bgFlow 12s ease-in-out infinite alternate;
+        }
+        @keyframes bgFlow {
+            0% { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f1f2f6 100%); }
+            100% { background: linear-gradient(135deg, #fefefe 0%, #f5f6f8 50%, #eceef2 100%); }
+        }
+        .sidebar {
+            width: 260px;
+            background: rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 40px 20px;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .logo-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+        /* 导航按钮 指定 rgba(0,0,0,0.06) 白字 */
+        .nav-item {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border-radius: 14px;
+            border: none;
+            background: rgba(0,0,0,0.06);
+            color: #000;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0,0,0,0.12);
+            transform: translateX(4px);
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 60px 80px;
+        }
+        .page {
+            display: none;
+            animation: fadeInUp 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeInUp {
+            from {opacity: 0; transform: translateY(15px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+        .desc-text {
+            font-size: 18px;
+            color: rgba(0,0,0,0.75);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        /* 所有按钮统一底色 rgba(0,0,0,0.06) */
+        .join-btn,
+        .close-modal,
+        .submit-btn,
+        .tab-btn {
+            background: rgba(0,0,0,0.06);
+            color: #000;
+            border: none;
+        }
+        .join-btn {
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .join-btn:hover {
+            background: rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-box {
+            background: rgba(0,0,0,0.05);
+            backdrop-filter: blur(50px) saturate(220%);
+            -webkit-backdrop-filter: blur(50px) saturate(220%);
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.12);
+            animation: scaleIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        @keyframes scaleIn {
+            from {opacity:0; transform: scale(0.95);}
+            to {opacity:1; transform: scale(1);}
+        }
+        .modal-box h2 {
+            margin-bottom: 20px;
+            color: #000000;
+        }
+        .modal-box p {
+            font-size: 17px;
+            color: rgba(0,0,0,0.75);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        .close-modal {
+            padding: 12px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .close-modal:hover {
+            background: rgba(0,0,0,0.12);
+        }
+        /* 登录注册卡片样式 */
+        .login-wrap{
+            max-width:460px;
+            background: rgba(0,0,0,0.05);
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border-radius:24px;
+            padding:40px;
+            border:1px solid rgba(0,0,0,0.1);
+        }
+        .tab-btn-group{
+            display:flex;
+            gap:10px;
+            margin-bottom:25px;
+        }
+        .tab-btn{
+            flex:1;
+            padding:12px;
+            border-radius:12px;
+            font-size:16px;
+            cursor:pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active{
+            background:rgba(0,0,0,0.12);
+            color:#000;
+        }
+        .form-item{
+            margin:12px 0;
+        }
+        .form-item input{
+            width:100%;
+            padding:14px;
+            border-radius:12px;
+            border:1px solid rgba(0,0,0,0.12);
+            background:rgba(0,0,0,0.03);
+            color:#000;
+            font-size:16px;
+            outline:none;
+        }
+        .form-item input::placeholder{
+            color:rgba(0,0,0,0.45);
+        }
+        .submit-btn{
+            width:100%;
+            padding:14px;
+            margin-top:10px;
+            border-radius:12px;
+            font-size:16px;
+            cursor:pointer;
+            transition: 0.3s;
+        }
+        .submit-btn:hover{
+            background:rgba(0,0,0,0.12);
+        }
+        .agree-text{
+            color:rgba(0,0,0,0.6);
+            font-size:14px;
+            margin:15px 0;
+        }
+        .agree-text a{
+            color:#0066cc;
+            text-decoration:none;
+        }
+        .hidden-tab{
+            display:none;
+        }
+        .user-info{
+            color:#000;
+            font-size:18px;
+            line-height:2;
+        }
+        .agree-content{
+            max-height:300px;
+            overflow-y:auto;
+            text-align:left;
+            font-size:15px;
+            line-height:1.8;
+        }
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 260px;
+            width: calc(100% - 260px);
+            text-align: center;
+            font-size: 14px;
+            color: rgba(0,0,0,0.5);
+        }
+        .qr-wrap{
+            margin-top:40px;
+            display:flex;
+        }
+        #mainCanvas{
+            border-radius:24px;
+            box-shadow:0 0 60px rgba(0,0,0,0.08);
+            background:#fff;
+        }
+        /* 开发者共创星球 预留样式 */
+        .star-list-wrap{
+            max-width:800px;
+            background:rgba(0,0,0,0.05);
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border-radius:24px;
+            padding:40px;
+            border:1px solid rgba(0,0,0,0.1);
+            min-height:400px;
+        }
+        .star-tip{
+            color:rgba(0,0,0,0.6);
+            font-size:16px;
+        }
+        /* 快速预览 4个视频预留位置 */
+        .video-grid{
+            display:grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap:30px;
+            max-width:900px;
+            margin-top:20px;
+        }
+        .video-card{
+            background:rgba(0,0,0,0.05);
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border-radius:24px;
+            border:1px solid rgba(0,0,0,0.1);
+            height:220px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:rgba(0,0,0,0.5);
+            font-size:15px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo-title">HBS Developer</div>
+    <button class="nav-item active" data-page="home">首页</button>
+    <button class="nav-item" data-page="news">新闻更新</button>
+    <button class="nav-item" data-page="mine">我的</button>
+    <button class="nav-item" data-page="about">关于</button>
+    <button class="nav-item" data-page="starPlanet">开发者共创星球</button>
+    <button class="nav-item" data-page="fastPreview">快速预览</button>
+</div>
+<div class="main-content">
+    <div class="page active" id="home">
+        <h1>欢迎您来到 HBS 开发者中心</h1>
+        <p class="desc-text">
+            本平台采用全液态玻璃风格UI设计，系统界面完全对标苹果开发者生态，专为Furry爱好者与开发者打造专属服务中心。
+        </p>
+        <p class="desc-text">如果您想加入我们，请点击下方申请按钮。</p>
+        <button class="join-btn" onclick="openModal()">立即加入申请</button>
+        <div class="qr-wrap">
+            <canvas id="mainCanvas" width="360" height="360"></canvas>
+        </div>
+    </div>
+    <div class="page" id="news">
+        <h1>新闻更新公告</h1>
+        <p class="desc-text">
+            我们的网页专为 Furry 群体服务，致力于打造简约高级、流畅丝滑的液态玻璃开发者系统。
+            <br><br>
+            若您在使用过程中发现任何 Bug、界面异常、功能故障，均可提交反馈至邮箱：
+            <br><strong>moss_0415@outlook.com</strong>
+        </p>
+    </div>
+    <div class="page" id="mine">
+        <h1>账号中心</h1>
+        <div class="login-wrap" id="loginBox">
+            <div class="tab-btn-group">
+                <button class="tab-btn active" onclick="switchTab('login')">登录</button>
+                <button class="tab-btn" onclick="switchTab('reg')">注册</button>
+            </div>
+            <div id="loginTab">
+                <div class="form-item">
+                    <input type="text" id="loginUser" placeholder="请输入用户名">
+                </div>
+                <div class="form-item">
+                    <input type="password" id="loginPwd" placeholder="请输入密码">
+                </div>
+                <button class="submit-btn" onclick="login()">立即登录</button>
+            </div>
+            <div id="regTab" class="hidden-tab">
+                <div class="form-item">
+                    <input type="text" id="regUser" placeholder="设置用户名">
+                </div>
+                <div class="form-item">
+                    <input type="password" id="regPwd" placeholder="设置密码">
+                </div>
+                <div class="agree-text">
+                    注册即代表同意 <a href="javascript:openUserAgree()">《用户服务协议》</a>
+                </div>
+                <button class="submit-btn" onclick="register()">立即注册</button>
+            </div>
+        </div>
+        <div class="user-info" id="userInfo" style="display:none;">
+            <p>✅ 已登录成功</p>
+            <p>用户名：<span id="showUser"></span></p>
+            <button class="join-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+    <div class="page" id="about">
+        <h1>关于 HBS Developer</h1>
+        <p class="desc-text">
+            下一次系统更新预计在 <strong>5月19日 晚些时候</strong> 进行推送。
+            <br><br>
+            此次更新主要内容：
+            <br>1. 整体系统底层优化
+            <br>2. UI界面细节微调升级
+            <br>3. 全局页面流畅度与动画顺滑度增强
+            <br>4. 液态玻璃磨砂效果质感升级
+        </p>
+    </div>
+    <div class="page" id="starPlanet">
+        <h1>开发者共创星球</h1>
+        <p class="desc-text">此处为开发者共创成员名单预留区域，你可自行编辑添加成员信息。</p>
+        <div class="star-list-wrap">
+            <p class="star-tip">阿兰是只喵</p>
+        </div>
+    </div>
+    <div class="page" id="fastPreview">
+        <h1>快速预览</h1>
+        <p class="desc-text">此处预留4个教程视频位置，后续可嵌入使用教程视频。</p>
+        <div class="video-grid">
+            <div class="video-card">vidio1.mov</div>
+            <div class="video-card">视频位置 2（待发布）</div>
+            <div class="video-card">视频位置 3（待发布）</div>
+            <div class="video-card">视频位置 4（待发布）</div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="applyModal">
+    <div class="modal-box">
+        <h2>加入我们 申请须知</h2>
+        <p>
+            如果想加入 HBS 开发者团队，需先提交个人申请。
+            <br><br>
+            请将申请资料发送至邮箱：
+            <br><strong>moss_0415@qq.com</strong>
+        </p>
+        <button class="close-modal" onclick="closeModal()">我知道了</button>
+    </div>
+</div>
+<div class="modal" id="userAgreeModal">
+    <div class="modal-box">
+        <h2>用户服务协议</h2>
+        <p class="agree-content">
+            1. 本平台为 HBS Developer 开发者内部交流站点，所有用户需遵守相关法律法规。<br><br>
+            2. 禁止发布色情、暴力、违法、侵权及任何违规内容。<br><br>
+            3. 用户账号仅限本人使用，禁止转借、售卖账号。<br><br>
+            4. 请勿盗用本站点界面、源码、粒子设计及相关视觉素材。<br><br>
+            5. 我们会保护您的账号信息隐私，不会私自泄露个人资料。<br><br>
+            6. 违反协议者，管理员有权封禁账号、限制使用权限。
+        </p>
+        <button class="close-modal" onclick="closeUserAgree()">已阅读并同意</button>
+    </div>
+</div>
+<div class="footer">© 2026 HBS Developer 保留所有权利</div>
+<script>
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
+    navItems.forEach(item => {
+        item.onclick = () => {
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            const target = item.dataset.page;
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(target).classList.add('active');
+        }
+    });
+    function openModal(){
+        document.getElementById('applyModal').style.display = 'flex';
+    }
+    function closeModal(){
+        document.getElementById('applyModal').style.display = 'none';
+    }
+    function switchTab(type){
+        document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
+        event.target.classList.add('active');
+        if(type === 'login'){
+            document.getElementById('loginTab').style.display = 'block';
+            document.getElementById('regTab').style.display = 'none';
+        }else{
+            document.getElementById('loginTab').style.display = 'none';
+            document.getElementById('regTab').style.display = 'block';
+        }
+    }
+    function register(){
+        let user = document.getElementById('regUser').value.trim();
+        let pwd = document.getElementById('regPwd').value.trim();
+        if(!user || !pwd){
+            alert('用户名和密码不能为空');
+            return;
+        }
+        if(localStorage.getItem('hbs_user_'+user)){
+            alert('该用户名已被注册');
+            return;
+        }
+        localStorage.setItem('hbs_user_'+user, pwd);
+        alert('注册成功！请前往登录');
+        switchTab('login');
+    }
+    function login(){
+        let user = document.getElementById('loginUser').value.trim();
+        let pwd = document.getElementById('loginPwd').value.trim();
+        if(!user || !pwd){
+            alert('用户名和密码不能为空');
+            return;
+        }
+        let savePwd = localStorage.getItem('hbs_user_'+user);
+        if(!savePwd || savePwd !== pwd){
+            alert('用户名或密码错误');
+            return;
+        }
+        localStorage.setItem('hbs_login_user', user);
+        showUserInfo();
+    }
+    function showUserInfo(){
+        let user = localStorage.getItem('hbs_login_user');
+        if(user){
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('showUser').innerText = user;
+        }else{
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+    }
+    function logout(){
+        localStorage.removeItem('hbs_login_user');
+        showUserInfo();
+    }
+    function openUserAgree(){
+        document.getElementById('userAgreeModal').style.display = 'flex';
+    }
+    function closeUserAgree(){
+        document.getElementById('userAgreeModal').style.display = 'none';
+    }
+    window.onload = function(){
+        showUserInfo();
+    }
+</script>
+<!-- 粒子二维码动画 -->
+<script>
+const canvas = document.getElementById("mainCanvas");
+const ctx = canvas.getContext("2d");
+const qrText = "HBS Developer\n2026 权利所有，请勿盗用";
+function generateQRMatrix() {
+  const moduleCount = 25;
+  const cellSize = canvas.width / moduleCount;
+  const matrix = [];
+  for (let y = 0; y < moduleCount; y++) {
+    matrix[y] = [];
+    for (let x = 0; x < moduleCount; x++) {
+      matrix[y][x] = false;
+    }
+  }
+  function drawFinder(ox, oy) {
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
+        const r = Math.max(Math.abs(x - 3), Math.abs(y - 3));
+        matrix[oy + y][ox + x] = r !== 1 && r !== 5;
+      }
+    }
+  }
+  drawFinder(0, 0);
+  drawFinder(18, 0);
+  drawFinder(0, 18);
+  const seed = qrText.charCodeAt(0) + qrText.length;
+  for (let i = 0; i < seed * 3; i++) {
+    const x = (i * 7) % (moduleCount - 10) + 5;
+    const y = (i * 11) % (moduleCount - 10) + 5;
+    if (!matrix[y][x]) {
+      matrix[y][x] = (i % 2 === 0);
+    }
+  }
+  return { matrix, cellSize };
+}
+class Particle {
+  constructor(tx, ty) {
+    this.targetX = tx;
+    this.targetY = ty;
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = 0;
+    this.vy = 0;
+    this.radius = Math.random() * 1.5 + 0.8;
+    this.alpha = Math.random() * 0.6 + 0.4;
+  }
+  gather() {
+    const dx = this.targetX - this.x;
+    const dy = this.targetY - this.y;
+    this.vx += dx * 0.006;
+    this.vy += dy * 0.006;
+    this.vx *= 0.94;
+    this.vy *= 0.94;
+    this.x += this.vx;
+    this.y += this.vy;
+  }
+  scatter() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const dx = this.x - centerX;
+    const dy = this.y - centerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const force = 0.15;
+    this.vx += (dx / dist) * force;
+    this.vy += (dy / dist) * force;
+    this.vx *= 0.99;
+    this.vy *= 0.99;
+    this.x += this.vx;
+    this.y += this.vy;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${this.alpha})`;
+    ctx.fill();
+  }
+}
+function initParticles() {
+  const { matrix, cellSize } = generateQRMatrix();
+  const particles = [];
+  for (let y = 0; y < matrix.length; y++) {
+    for (let x = 0; x < matrix[y].length; x++) {
+      if (matrix[y][x]) {
+        const centerX = x * cellSize + cellSize / 2;
+        const centerY = y * cellSize + cellSize / 2;
+        for (let i = 0; i < 3; i++) {
+          particles.push(new Particle(centerX, centerY));
+        }
+      }
+    }
+  }
+  return particles;
+}
+function animateLoop(particles) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cycleTime = 700;
+  const frame = Date.now() / 16;
+  let globalState = "gather";
+  if (frame % (cycleTime * 3) < cycleTime) {
+    globalState = "gather";
+  } else if (frame % (cycleTime * 3) < cycleTime * 2) {
+    globalState = "scatter";
+  } else {
+    globalState = "scatter";
+  }
+  particles.forEach(p => {
+    if (globalState === "gather") p.gather();
+    if (globalState === "scatter") p.scatter();
+    p.draw();
+  });
+  requestAnimationFrame(() => animateLoop(particles));
+}
+const particles = initParticles();
+animateLoop(particles);
+</script>
+</body>
+</html>
