@@ -40,7 +40,6 @@
             margin-bottom: 50px;
             letter-spacing: 1px;
         }
-        /* 导航按钮 指定 rgba(0,0,0,0.06) 白字 */
         .nav-item {
             display: block;
             width: 100%;
@@ -87,7 +86,6 @@
             line-height: 1.8;
             margin-bottom: 30px;
         }
-        /* 所有按钮统一底色 rgba(0,0,0,0.06) */
         .join-btn,
         .close-modal,
         .submit-btn,
@@ -159,7 +157,6 @@
         .close-modal:hover {
             background: rgba(0,0,0,0.12);
         }
-        /* 登录注册卡片样式 */
         .login-wrap{
             max-width:460px;
             background: rgba(0,0,0,0.05);
@@ -256,7 +253,6 @@
             box-shadow:0 0 60px rgba(0,0,0,0.08);
             background:#fff;
         }
-        /* 开发者共创星球 预留样式 */
         .star-list-wrap{
             max-width:800px;
             background:rgba(0,0,0,0.05);
@@ -271,7 +267,6 @@
             color:rgba(0,0,0,0.6);
             font-size:16px;
         }
-        /* 快速预览 4个视频预留位置 */
         .video-grid{
             display:grid;
             grid-template-columns: repeat(2, 1fr);
@@ -291,6 +286,13 @@
             justify-content:center;
             color:rgba(0,0,0,0.5);
             font-size:15px;
+            overflow:hidden;
+        }
+        .video-card video {
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            border-radius:inherit;
         }
     </style>
 </head>
@@ -376,14 +378,19 @@
         <h1>开发者共创星球</h1>
         <p class="desc-text">此处为开发者共创成员名单预留区域，你可自行编辑添加成员信息。</p>
         <div class="star-list-wrap">
-            <p class="star-tip">阿兰是只喵</p>
+            <p class="star-tip">👉 在此处自行填写开发者共创名单、昵称、贡献介绍等内容</p>
         </div>
     </div>
     <div class="page" id="fastPreview">
         <h1>快速预览</h1>
         <p class="desc-text">此处预留4个教程视频位置，后续可嵌入使用教程视频。</p>
         <div class="video-grid">
-            <div class="video-card">vidio1.MOV</div>
+            <div class="video-card">
+                <video controls muted playsinline>
+                    <source src="vidio1.MOV" type="video/quicktime">
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
             <div class="video-card">视频位置 2（待发布）</div>
             <div class="video-card">视频位置 3（待发布）</div>
             <div class="video-card">视频位置 4（待发布）</div>
